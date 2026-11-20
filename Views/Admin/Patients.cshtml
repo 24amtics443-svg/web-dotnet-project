@@ -1,0 +1,1902 @@
+@model IEnumerable<HealthcareManagementSystem.Models.Patient>
+
+@using HealthcareManagementSystem.Models
+
+@{
+    ViewData["Title"] = "Patient Management";
+
+    var patients = Model?.ToList()
+        ?? new List<Patient>();
+
+    var selectedPatient =
+        ViewBag.SelectedPatient as Patient;
+
+    var medicalHistory =
+        ViewBag.MedicalHistory as List<MedicalRecord>
+        ?? new List<MedicalRecord>();
+
+    var searchTerm =
+        ViewBag.SearchTerm as string ?? "";
+
+    var section =
+        ViewBag.Section as string ?? "list";
+}
+
+<style>
+
+    .patient-page {
+        padding: 30px;
+        background: #f5f8fc;
+        min-height: calc(100vh - 70px);
+    }
+
+    .patient-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 20px;
+        margin-bottom: 25px;
+        flex-wrap: wrap;
+    }
+
+    .patient-heading {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .patient-heading-icon {
+        width: 58px;
+        height: 58px;
+        border-radius: 16px;
+        background: linear-gradient(
+            135deg,
+            #2563eb,
+            #4f46e5
+        );
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 27px;
+        box-shadow: 0 10px 25px rgba(
+            37,
+            99,
+            235,
+            .18
+        );
+    }
+
+    .patient-heading h1 {
+        margin: 0;
+        color: #172033;
+        font-size: 28px;
+        font-weight: 750;
+    }
+
+    .patient-heading p {
+        margin: 5px 0 0;
+        color: #64748b;
+    }
+
+    .patient-back {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 11px 18px;
+        background: #2563eb;
+        color: white;
+        text-decoration: none;
+        border-radius: 10px;
+        font-weight: 600;
+        box-shadow: 0 7px 18px rgba(
+            37,
+            99,
+            235,
+            .18
+        );
+    }
+
+    .patient-back:hover {
+        color: white;
+        background: #1d4ed8;
+    }
+
+    .alert-box {
+        padding: 14px 18px;
+        border-radius: 12px;
+        margin-bottom: 20px;
+        font-weight: 600;
+    }
+
+    .alert-success {
+        background: #ecfdf5;
+        color: #047857;
+        border: 1px solid #a7f3d0;
+    }
+
+    .alert-error {
+        background: #fef2f2;
+        color: #b91c1c;
+        border: 1px solid #fecaca;
+    }
+
+    .patient-action-grid {
+        display: grid;
+        grid-template-columns:
+            repeat(6, minmax(150px, 1fr));
+        gap: 15px;
+        margin-bottom: 25px;
+    }
+
+    .action-card {
+        border: 1px solid #e2e8f0;
+        background: white;
+        border-radius: 15px;
+        padding: 20px;
+        min-height: 125px;
+        text-decoration: none;
+        color: #172033;
+        transition: .2s ease;
+        cursor: pointer;
+    }
+
+    .action-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 28px rgba(
+            15,
+            23,
+            42,
+            .08
+        );
+        border-color: #bfdbfe;
+    }
+
+    .action-icon {
+        width: 43px;
+        height: 43px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #eff6ff;
+        font-size: 21px;
+        margin-bottom: 12px;
+    }
+
+    .action-card strong {
+        display: block;
+        font-size: 15px;
+    }
+
+    .action-card span {
+        display: block;
+        color: #64748b;
+        font-size: 12px;
+        margin-top: 5px;
+    }
+
+    .patient-card {
+        background: white;
+        border-radius: 18px;
+        border: 1px solid #e2e8f0;
+        padding: 24px;
+        margin-bottom: 25px;
+        box-shadow: 0 5px 20px rgba(
+            15,
+            23,
+            42,
+            .035
+        );
+    }
+
+    .card-title-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 15px;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+    }
+
+    .card-title-row h2 {
+        margin: 0;
+        color: #172033;
+        font-size: 20px;
+    }
+
+    .card-title-row p {
+        margin: 5px 0 0;
+        color: #64748b;
+        font-size: 13px;
+    }
+
+    .search-form {
+        display: flex;
+        gap: 10px;
+        max-width: 600px;
+    }
+
+    .search-input {
+        flex: 1;
+        border: 1px solid #cbd5e1;
+        border-radius: 10px;
+        padding: 12px 14px;
+        outline: none;
+    }
+
+    .search-input:focus {
+        border-color: #2563eb;
+        box-shadow: 0 0 0 3px rgba(
+            37,
+            99,
+            235,
+            .1
+        );
+    }
+
+    .btn-blue {
+        border: none;
+        background: #2563eb;
+        color: white;
+        padding: 11px 18px;
+        border-radius: 10px;
+        font-weight: 600;
+        cursor: pointer;
+    }
+
+    .btn-blue:hover {
+        background: #1d4ed8;
+    }
+
+    .btn-green {
+        border: none;
+        background: #059669;
+        color: white;
+        padding: 11px 18px;
+        border-radius: 10px;
+        font-weight: 600;
+        cursor: pointer;
+    }
+
+    .btn-green:hover {
+        background: #047857;
+    }
+
+    .btn-red {
+        border: none;
+        background: #dc2626;
+        color: white;
+        padding: 8px 12px;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        font-size: 12px;
+    }
+
+    .btn-red:hover {
+        background: #b91c1c;
+    }
+
+    .btn-light {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        background: #eff6ff;
+        color: #1d4ed8;
+        padding: 8px 12px;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 12px;
+    }
+
+    .btn-light:hover {
+        color: #1e40af;
+        background: #dbeafe;
+    }
+
+    .patient-table-wrapper {
+        overflow-x: auto;
+    }
+
+    .patient-table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 850px;
+    }
+
+    .patient-table th {
+        text-align: left;
+        padding: 13px 12px;
+        background: #f8fafc;
+        color: #475569;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: .4px;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .patient-table td {
+        padding: 15px 12px;
+        border-bottom: 1px solid #eef2f7;
+        color: #334155;
+        font-size: 13px;
+        vertical-align: middle;
+    }
+
+    .patient-name {
+        font-weight: 700;
+        color: #172033;
+    }
+
+    .patient-avatar {
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        background: #dbeafe;
+        color: #1d4ed8;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        margin-right: 8px;
+    }
+
+    .status-badge {
+        display: inline-block;
+        padding: 5px 9px;
+        border-radius: 20px;
+        background: #ecfdf5;
+        color: #047857;
+        font-size: 11px;
+        font-weight: 700;
+    }
+
+    .table-actions {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+        gap: 17px;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 7px;
+    }
+
+    .form-group.full {
+        grid-column: 1 / -1;
+    }
+
+    .form-group label {
+        font-size: 13px;
+        color: #334155;
+        font-weight: 650;
+    }
+
+    .form-control {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 11px 13px;
+        border: 1px solid #cbd5e1;
+        border-radius: 9px;
+        outline: none;
+        background: white;
+        color: #172033;
+    }
+
+    .form-control:focus {
+        border-color: #2563eb;
+        box-shadow: 0 0 0 3px rgba(
+            37,
+            99,
+            235,
+            .1
+        );
+    }
+
+    textarea.form-control {
+        min-height: 90px;
+        resize: vertical;
+    }
+
+    .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        margin-top: 20px;
+    }
+
+    .profile-grid {
+        display: grid;
+        grid-template-columns:
+            repeat(3, minmax(0, 1fr));
+        gap: 15px;
+    }
+
+    .profile-item {
+        padding: 15px;
+        border-radius: 12px;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+    }
+
+    .profile-item label {
+        display: block;
+        font-size: 11px;
+        color: #64748b;
+        text-transform: uppercase;
+        margin-bottom: 5px;
+    }
+
+    .profile-item strong {
+        color: #172033;
+        font-size: 14px;
+        word-break: break-word;
+    }
+
+    .profile-header {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+
+    .profile-large-avatar {
+        width: 65px;
+        height: 65px;
+        border-radius: 50%;
+        background: linear-gradient(
+            135deg,
+            #2563eb,
+            #4f46e5
+        );
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 25px;
+        font-weight: 700;
+    }
+
+    .history-item {
+        border-left: 4px solid #2563eb;
+        background: #f8fafc;
+        border-radius: 0 12px 12px 0;
+        padding: 18px;
+        margin-bottom: 12px;
+    }
+
+    .history-item h4 {
+        margin: 0 0 7px;
+        color: #172033;
+    }
+
+    .history-item p {
+        margin: 5px 0;
+        color: #475569;
+        font-size: 13px;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 45px 20px;
+        color: #64748b;
+    }
+
+    .empty-icon {
+        font-size: 40px;
+        margin-bottom: 10px;
+    }
+
+    .select-box {
+        min-width: 230px;
+        padding: 10px 12px;
+        border: 1px solid #cbd5e1;
+        border-radius: 9px;
+        background: white;
+    }
+
+    @@media (max-width: 1200px) {
+
+        .patient-action-grid {
+            grid-template-columns:
+                repeat(3, 1fr);
+        }
+
+    }
+
+    @@media (max-width: 800px) {
+
+        .patient-page {
+            padding: 18px;
+        }
+
+        .patient-action-grid {
+            grid-template-columns:
+                repeat(2, 1fr);
+        }
+
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .form-group.full {
+            grid-column: auto;
+        }
+
+        .profile-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .search-form {
+            width: 100%;
+        }
+
+    }
+
+    @@media (max-width: 500px) {
+
+        .patient-action-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .patient-heading h1 {
+            font-size: 22px;
+        }
+
+    }
+
+</style>
+
+
+<div class="patient-page">
+
+    <!-- ================================================= -->
+    <!-- HEADER -->
+    <!-- ================================================= -->
+
+    <div class="patient-top">
+
+        <div class="patient-heading">
+
+            <div class="patient-heading-icon">
+                👥
+            </div>
+
+            <div>
+                <h1>Patient Management</h1>
+
+                <p>
+                    Manage patient registration,
+                    profiles and healthcare information.
+                </p>
+            </div>
+
+        </div>
+
+        <a asp-controller="Admin"
+           asp-action="Dashboard"
+           class="patient-back">
+
+            ← Go Back
+
+        </a>
+
+    </div>
+
+
+    <!-- ================================================= -->
+    <!-- SUCCESS / ERROR -->
+    <!-- ================================================= -->
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert-box alert-success">
+
+            ✓ @TempData["Success"]
+
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert-box alert-error">
+
+            ⚠ @TempData["Error"]
+
+        </div>
+    }
+
+
+    <!-- ================================================= -->
+    <!-- QUICK ACTION CARDS -->
+    <!-- ================================================= -->
+
+    <div class="patient-action-grid">
+
+        <a href="#add-patient"
+           class="action-card">
+
+            <div class="action-icon">
+                ➕
+            </div>
+
+            <strong>Add Patient</strong>
+
+            <span>
+                Register a new patient
+            </span>
+
+        </a>
+
+
+        <a href="#patient-list"
+           class="action-card">
+
+            <div class="action-icon">
+                👥
+            </div>
+
+            <strong>Patient List</strong>
+
+            <span>
+                View all patients
+            </span>
+
+        </a>
+
+
+        <a href="#search-patient"
+           class="action-card">
+
+            <div class="action-icon">
+                🔍
+            </div>
+
+            <strong>Search Patient</strong>
+
+            <span>
+                Find patient quickly
+            </span>
+
+        </a>
+
+
+        <a href="#patient-profile"
+           class="action-card">
+
+            <div class="action-icon">
+                👤
+            </div>
+
+            <strong>Patient Profile</strong>
+
+            <span>
+                View patient details
+            </span>
+
+        </a>
+
+
+        <a href="#medical-history"
+           class="action-card">
+
+            <div class="action-icon">
+                ❤️
+            </div>
+
+            <strong>Medical History</strong>
+
+            <span>
+                View medical records
+            </span>
+
+        </a>
+
+
+        <a href="#edit-patient"
+           class="action-card">
+
+            <div class="action-icon">
+                ✏️
+            </div>
+
+            <strong>Edit Patient</strong>
+
+            <span>
+                Update patient information
+            </span>
+
+        </a>
+
+    </div>
+
+
+    <!-- ================================================= -->
+    <!-- ADD PATIENT -->
+    <!-- ================================================= -->
+
+    <section class="patient-card"
+             id="add-patient">
+
+        <div class="card-title-row">
+
+            <div>
+                <h2>➕ Add New Patient</h2>
+
+                <p>
+                    Create a patient profile and
+                    login account.
+                </p>
+            </div>
+
+        </div>
+
+
+        <form asp-controller="Admin"
+              asp-action="AddPatient"
+              method="post">
+
+            @Html.AntiForgeryToken()
+
+            <div class="form-grid">
+
+                <div class="form-group">
+
+                    <label>
+                        Full Name *
+                    </label>
+
+                    <input type="text"
+                           name="fullName"
+                           class="form-control"
+                           placeholder="Enter patient full name"
+                           required />
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>
+                        Email *
+                    </label>
+
+                    <input type="email"
+                           name="email"
+                           class="form-control"
+                           placeholder="patient@example.com"
+                           required />
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>
+                        Phone Number
+                    </label>
+
+                    <input type="tel"
+                           name="phone"
+                           class="form-control"
+                           maxlength="10"
+                           placeholder="10 digit phone number" />
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>
+                        Account Password *
+                    </label>
+
+                    <input type="password"
+                           name="password"
+                           class="form-control"
+                           minlength="6"
+                           placeholder="Minimum 6 characters"
+                           required />
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>
+                        Date of Birth
+                    </label>
+
+                    <input type="date"
+                           name="dateOfBirth"
+                           class="form-control" />
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>
+                        Gender
+                    </label>
+
+                    <select name="gender"
+                            class="form-control">
+
+                        <option value="">
+                            Select Gender
+                        </option>
+
+                        <option value="Male">
+                            Male
+                        </option>
+
+                        <option value="Female">
+                            Female
+                        </option>
+
+                        <option value="Other">
+                            Other
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>
+                        Blood Group
+                    </label>
+
+                    <select name="bloodGroup"
+                            class="form-control">
+
+                        <option value="">
+                            Select Blood Group
+                        </option>
+
+                        <option value="A+">A+</option>
+                        <option value="A-">A-</option>
+                        <option value="B+">B+</option>
+                        <option value="B-">B-</option>
+                        <option value="AB+">AB+</option>
+                        <option value="AB-">AB-</option>
+                        <option value="O+">O+</option>
+                        <option value="O-">O-</option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>
+                        Emergency Contact
+                    </label>
+
+                    <input type="text"
+                           name="emergencyContact"
+                           class="form-control"
+                           placeholder="Emergency contact number" />
+
+                </div>
+
+
+                <div class="form-group full">
+
+                    <label>
+                        Address
+                    </label>
+
+                    <textarea name="address"
+                              class="form-control"
+                              placeholder="Enter complete address"></textarea>
+
+                </div>
+
+            </div>
+
+
+            <div class="form-actions">
+
+                <button type="reset"
+                        class="btn-light">
+
+                    Clear
+
+                </button>
+
+                <button type="submit"
+                        class="btn-green">
+
+                    ➕ Add Patient
+
+                </button>
+
+            </div>
+
+        </form>
+
+    </section>
+
+
+    <!-- ================================================= -->
+    <!-- SEARCH -->
+    <!-- ================================================= -->
+
+    <section class="patient-card"
+             id="search-patient">
+
+        <div class="card-title-row">
+
+            <div>
+                <h2>🔍 Search Patient</h2>
+
+                <p>
+                    Search by patient name,
+                    email or phone number.
+                </p>
+            </div>
+
+        </div>
+
+
+        <form asp-controller="Admin"
+              asp-action="Patients"
+              method="get"
+              class="search-form">
+
+            <input type="text"
+                   name="search"
+                   value="@searchTerm"
+                   class="search-input"
+                   placeholder="Search patient..." />
+
+            <button type="submit"
+                    class="btn-blue">
+
+                🔍 Search
+
+            </button>
+
+            @if (!string.IsNullOrWhiteSpace(searchTerm))
+            {
+                <a asp-controller="Admin"
+                   asp-action="Patients"
+                   class="btn-light">
+
+                    Clear
+
+                </a>
+            }
+
+        </form>
+
+    </section>
+
+
+    <!-- ================================================= -->
+    <!-- PATIENT LIST -->
+    <!-- ================================================= -->
+
+    <section class="patient-card"
+             id="patient-list">
+
+        <div class="card-title-row">
+
+            <div>
+                <h2>👥 Patient List</h2>
+
+                <p>
+                    @patients.Count patient(s)
+                    found.
+                </p>
+            </div>
+
+        </div>
+
+
+        @if (patients.Count == 0)
+        {
+            <div class="empty-state">
+
+                <div class="empty-icon">
+                    👥
+                </div>
+
+                <strong>
+                    No patients found
+                </strong>
+
+                <p>
+                    Add a new patient to
+                    get started.
+                </p>
+
+            </div>
+        }
+        else
+        {
+            <div class="patient-table-wrapper">
+
+                <table class="patient-table">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                Patient
+                            </th>
+
+                            <th>
+                                Email
+                            </th>
+
+                            <th>
+                                Phone
+                            </th>
+
+                            <th>
+                                Gender
+                            </th>
+
+                            <th>
+                                Blood Group
+                            </th>
+
+                            <th>
+                                Status
+                            </th>
+
+                            <th>
+                                Actions
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                        @foreach (var patient in patients)
+                        {
+                            var firstLetter =
+                                string.IsNullOrWhiteSpace(
+                                    patient.FullName)
+                                    ? "P"
+                                    : patient.FullName
+                                        .Substring(0, 1)
+                                        .ToUpper();
+
+                            <tr>
+
+                                <td>
+
+                                    <span class="patient-avatar">
+                                        @firstLetter
+                                    </span>
+
+                                    <span class="patient-name">
+                                        @patient.FullName
+                                    </span>
+
+                                </td>
+
+
+                                <td>
+                                    @patient.Email
+                                </td>
+
+
+                                <td>
+                                    @(patient.Phone ?? "—")
+                                </td>
+
+
+                                <td>
+                                    @(patient.Gender ?? "—")
+                                </td>
+
+
+                                <td>
+                                    @(patient.BloodGroup ?? "—")
+                                </td>
+
+
+                                <td>
+
+                                    <span class="status-badge">
+                                        Active
+                                    </span>
+
+                                </td>
+
+
+                                <td>
+
+                                    <div class="table-actions">
+
+                                        <a asp-controller="Admin"
+                                           asp-action="Patients"
+                                           asp-route-selectedId="@patient.PatientId"
+                                           asp-route-section="profile"
+                                           class="btn-light">
+
+                                            View
+
+                                        </a>
+
+
+                                        <a asp-controller="Admin"
+                                           asp-action="Patients"
+                                           asp-route-selectedId="@patient.PatientId"
+                                           asp-route-section="edit"
+                                           class="btn-light">
+
+                                            Edit
+
+                                        </a>
+
+
+                                        <form asp-controller="Admin"
+                                              asp-action="DeletePatient"
+                                              method="post"
+                                              style="display:inline;">
+
+                                            @Html.AntiForgeryToken()
+
+                                            <input type="hidden"
+                                                   name="patientId"
+                                                   value="@patient.PatientId" />
+
+                                            <button type="submit"
+                                                    class="btn-red"
+                                                    onclick="return confirm('Are you sure you want to delete this patient?');">
+
+                                                Delete
+
+                                            </button>
+
+                                        </form>
+
+                                    </div>
+
+                                </td>
+
+                            </tr>
+                        }
+
+                    </tbody>
+
+                </table>
+
+            </div>
+        }
+
+    </section>
+
+
+    <!-- ================================================= -->
+    <!-- SELECT PATIENT -->
+    <!-- ================================================= -->
+
+    @if (patients.Count > 0)
+    {
+        <section class="patient-card"
+                 id="patient-profile">
+
+            <div class="card-title-row">
+
+                <div>
+
+                    <h2>
+                        👤 Patient Profile
+                    </h2>
+
+                    <p>
+                        Select a patient to view
+                        complete information.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <form asp-controller="Admin"
+                  asp-action="Patients"
+                  method="get">
+
+                <input type="hidden"
+                       name="section"
+                       value="profile" />
+
+                <select name="selectedId"
+                        class="select-box"
+                        onchange="this.form.submit()">
+
+                    <option value="">
+                        -- Select Patient --
+                    </option>
+
+                    @foreach (var patient in patients)
+                    {
+                        <option value="@patient.PatientId"
+                                selected="@(selectedPatient?.PatientId == patient.PatientId)">
+
+                            @patient.FullName
+                            -
+                            @patient.Email
+
+                        </option>
+                    }
+
+                </select>
+
+            </form>
+
+        </section>
+    }
+
+
+    <!-- ================================================= -->
+    <!-- PROFILE -->
+    <!-- ================================================= -->
+
+    @if (selectedPatient != null &&
+         section == "profile")
+    {
+        <section class="patient-card">
+
+            <div class="profile-header">
+
+                <div class="profile-large-avatar">
+
+                    @{
+                        var profileLetter =
+                            string.IsNullOrWhiteSpace(
+                                selectedPatient.FullName)
+                                ? "P"
+                                : selectedPatient.FullName
+                                    .Substring(0, 1)
+                                    .ToUpper();
+                    }
+
+                    @profileLetter
+
+                </div>
+
+                <div>
+
+                    <h2 style="margin:0;">
+                        @selectedPatient.FullName
+                    </h2>
+
+                    <p style="margin:5px 0;color:#64748b;">
+                        Patient ID:
+                        #@selectedPatient.PatientId
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="profile-grid">
+
+                <div class="profile-item">
+
+                    <label>
+                        Full Name
+                    </label>
+
+                    <strong>
+                        @selectedPatient.FullName
+                    </strong>
+
+                </div>
+
+
+                <div class="profile-item">
+
+                    <label>
+                        Email
+                    </label>
+
+                    <strong>
+                        @selectedPatient.Email
+                    </strong>
+
+                </div>
+
+
+                <div class="profile-item">
+
+                    <label>
+                        Phone
+                    </label>
+
+                    <strong>
+                        @(selectedPatient.Phone ?? "Not provided")
+                    </strong>
+
+                </div>
+
+
+                <div class="profile-item">
+
+                    <label>
+                        Date of Birth
+                    </label>
+
+                    <strong>
+                        @(selectedPatient.DateOfBirth?.ToString("dd-MM-yyyy")
+                          ?? "Not provided")
+                    </strong>
+
+                </div>
+
+
+                <div class="profile-item">
+
+                    <label>
+                        Gender
+                    </label>
+
+                    <strong>
+                        @(selectedPatient.Gender ?? "Not provided")
+                    </strong>
+
+                </div>
+
+
+                <div class="profile-item">
+
+                    <label>
+                        Blood Group
+                    </label>
+
+                    <strong>
+                        @(selectedPatient.BloodGroup ?? "Not provided")
+                    </strong>
+
+                </div>
+
+
+                <div class="profile-item">
+
+                    <label>
+                        Emergency Contact
+                    </label>
+
+                    <strong>
+                        @(selectedPatient.EmergencyContact
+                          ?? "Not provided")
+                    </strong>
+
+                </div>
+
+
+                <div class="profile-item">
+
+                    <label>
+                        Registered On
+                    </label>
+
+                    <strong>
+                        @selectedPatient.CreatedAt
+                            .ToLocalTime()
+                            .ToString("dd-MM-yyyy")
+                    </strong>
+
+                </div>
+
+
+                <div class="profile-item">
+
+                    <label>
+                        Address
+                    </label>
+
+                    <strong>
+                        @(selectedPatient.Address
+                          ?? "Not provided")
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </section>
+    }
+
+
+    <!-- ================================================= -->
+    <!-- MEDICAL HISTORY SELECTOR -->
+    <!-- ================================================= -->
+
+    @if (patients.Count > 0)
+    {
+        <section class="patient-card"
+                 id="medical-history">
+
+            <div class="card-title-row">
+
+                <div>
+
+                    <h2>
+                        ❤️ Medical History
+                    </h2>
+
+                    <p>
+                        Select a patient to view
+                        medical records.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <form asp-controller="Admin"
+                  asp-action="Patients"
+                  method="get">
+
+                <input type="hidden"
+                       name="section"
+                       value="history" />
+
+                <select name="selectedId"
+                        class="select-box"
+                        onchange="this.form.submit()">
+
+                    <option value="">
+                        -- Select Patient --
+                    </option>
+
+                    @foreach (var patient in patients)
+                    {
+                        <option value="@patient.PatientId"
+                                selected="@(selectedPatient?.PatientId == patient.PatientId)">
+
+                            @patient.FullName
+
+                        </option>
+                    }
+
+                </select>
+
+            </form>
+
+        </section>
+    }
+
+
+    <!-- ================================================= -->
+    <!-- MEDICAL HISTORY -->
+    <!-- ================================================= -->
+
+    @if (selectedPatient != null &&
+         section == "history")
+    {
+        <section class="patient-card">
+
+            <div class="card-title-row">
+
+                <div>
+
+                    <h2>
+                        ❤️ Medical History —
+                        @selectedPatient.FullName
+                    </h2>
+
+                    <p>
+                        Patient ID:
+                        #@selectedPatient.PatientId
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            @if (medicalHistory.Count == 0)
+            {
+                <div class="empty-state">
+
+                    <div class="empty-icon">
+                        📋
+                    </div>
+
+                    <strong>
+                        No medical history found
+                    </strong>
+
+                    <p>
+                        No medical records have
+                        been added for this patient.
+                    </p>
+
+                </div>
+            }
+            else
+            {
+                @foreach (var record in medicalHistory)
+                {
+                    <div class="history-item">
+
+                        <h4>
+                            @(record.Diagnosis
+                              ?? "Medical Record")
+                        </h4>
+
+                        <p>
+                            <strong>
+                                Symptoms:
+                            </strong>
+
+                            @(record.Symptoms
+                              ?? "Not provided")
+                        </p>
+
+                        <p>
+                            <strong>
+                                Treatment:
+                            </strong>
+
+                            @(record.Treatment
+                              ?? "Not provided")
+                        </p>
+
+                        <p>
+                            <strong>
+                                Medical Notes:
+                            </strong>
+
+                            @(record.MedicalNotes
+                              ?? "Not provided")
+                        </p>
+
+                        <p>
+                            <strong>
+                                Doctor ID:
+                            </strong>
+
+                            @record.DoctorId
+                        </p>
+
+                        <p>
+                            <strong>
+                                Follow-up:
+                            </strong>
+
+                            @(record.FollowUpDate?
+                                .ToString("dd-MM-yyyy")
+                              ?? "Not scheduled")
+                        </p>
+
+                        <p>
+                            <strong>
+                                Created:
+                            </strong>
+
+                            @record.CreatedAt
+                                .ToLocalTime()
+                                .ToString("dd-MM-yyyy HH:mm")
+
+                        </p>
+
+                    </div>
+                }
+            }
+
+        </section>
+    }
+
+
+    <!-- ================================================= -->
+    <!-- EDIT PATIENT SELECTOR -->
+    <!-- ================================================= -->
+
+    @if (patients.Count > 0)
+    {
+        <section class="patient-card"
+                 id="edit-patient">
+
+            <div class="card-title-row">
+
+                <div>
+
+                    <h2>
+                        ✏️ Edit Patient
+                    </h2>
+
+                    <p>
+                        Select a patient to update
+                        their information.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <form asp-controller="Admin"
+                  asp-action="Patients"
+                  method="get">
+
+                <input type="hidden"
+                       name="section"
+                       value="edit" />
+
+                <select name="selectedId"
+                        class="select-box"
+                        onchange="this.form.submit()">
+
+                    <option value="">
+                        -- Select Patient --
+                    </option>
+
+                    @foreach (var patient in patients)
+                    {
+                        <option value="@patient.PatientId"
+                                selected="@(selectedPatient?.PatientId == patient.PatientId)">
+
+                            @patient.FullName
+
+                        </option>
+                    }
+
+                </select>
+
+            </form>
+
+        </section>
+    }
+
+
+    <!-- ================================================= -->
+    <!-- EDIT FORM -->
+    <!-- ================================================= -->
+
+    @if (selectedPatient != null &&
+         section == "edit")
+    {
+        <section class="patient-card">
+
+            <div class="card-title-row">
+
+                <div>
+
+                    <h2>
+                        ✏️ Edit —
+                        @selectedPatient.FullName
+                    </h2>
+
+                    <p>
+                        Update patient information.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <form asp-controller="Admin"
+                  asp-action="EditPatient"
+                  method="post">
+
+                @Html.AntiForgeryToken()
+
+                <input type="hidden"
+                       name="patientId"
+                       value="@selectedPatient.PatientId" />
+
+
+                <div class="form-grid">
+
+                    <div class="form-group">
+
+                        <label>
+                            Full Name *
+                        </label>
+
+                        <input type="text"
+                               name="fullName"
+                               class="form-control"
+                               value="@selectedPatient.FullName"
+                               required />
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label>
+                            Email *
+                        </label>
+
+                        <input type="email"
+                               name="email"
+                               class="form-control"
+                               value="@selectedPatient.Email"
+                               required />
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label>
+                            Phone
+                        </label>
+
+                        <input type="tel"
+                               name="phone"
+                               class="form-control"
+                               maxlength="10"
+                               value="@selectedPatient.Phone" />
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label>
+                            Date of Birth
+                        </label>
+
+                        <input type="date"
+                               name="dateOfBirth"
+                               class="form-control"
+                               value="@(selectedPatient.DateOfBirth?.ToString("yyyy-MM-dd"))" />
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label>
+                            Gender
+                        </label>
+
+                        <select name="gender"
+                                class="form-control">
+
+                            <option value="">
+                                Select Gender
+                            </option>
+
+                            <option value="Male"
+                                selected="@(selectedPatient.Gender == "Male")">
+
+                                Male
+
+                            </option>
+
+                            <option value="Female"
+                                selected="@(selectedPatient.Gender == "Female")">
+
+                                Female
+
+                            </option>
+
+                            <option value="Other"
+                                selected="@(selectedPatient.Gender == "Other")">
+
+                                Other
+
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label>
+                            Blood Group
+                        </label>
+
+                        <select name="bloodGroup"
+                                class="form-control">
+
+                            <option value="">
+                                Select Blood Group
+                            </option>
+
+                            @foreach (var group in new[]
+                            {
+                                "A+",
+                                "A-",
+                                "B+",
+                                "B-",
+                                "AB+",
+                                "AB-",
+                                "O+",
+                                "O-"
+                            })
+                            {
+                                <option value="@group"
+                                    selected="@(selectedPatient.BloodGroup == group)">
+
+                                    @group
+
+                                </option>
+                            }
+
+                        </select>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label>
+                            Emergency Contact
+                        </label>
+
+                        <input type="text"
+                               name="emergencyContact"
+                               class="form-control"
+                               value="@selectedPatient.EmergencyContact" />
+
+                    </div>
+
+
+                    <div class="form-group full">
+
+                        <label>
+                            Address
+                        </label>
+
+                        <textarea name="address"
+                                  class="form-control">@selectedPatient.Address</textarea>
+
+                    </div>
+
+                </div>
+
+
+                <div class="form-actions">
+
+                    <a asp-controller="Admin"
+                       asp-action="Patients"
+                       class="btn-light">
+
+                        Cancel
+
+                    </a>
+
+
+                    <button type="submit"
+                            class="btn-blue">
+
+                        ✓ Save Changes
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </section>
+    }
+
+</div>

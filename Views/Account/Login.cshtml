@@ -1,0 +1,583 @@
+@model HealthcareManagementSystem.ViewModels.LoginViewModel
+
+@{
+    ViewData["Title"] = "Login";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Login - Healthcare Management System</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+
+<body class="min-h-screen bg-slate-100">
+
+    <div class="min-h-screen flex items-center justify-center px-4 py-10">
+
+        <div class="w-full max-w-md">
+
+            <!-- Logo/Header -->
+            <div class="text-center mb-7">
+
+                <div class="inline-flex items-center justify-center
+                            w-16 h-16 rounded-2xl
+                            bg-blue-600 text-white
+                            shadow-lg shadow-blue-500/30 mb-4">
+
+                    <i data-lucide="heart-pulse"
+                       class="w-8 h-8"></i>
+
+                </div>
+
+                <h1 class="text-2xl font-extrabold text-slate-800">
+                    Healthcare Management System
+                </h1>
+
+                <p class="text-sm text-slate-500 mt-2">
+                    Sign in to access your healthcare portal
+                </p>
+
+            </div>
+
+
+            <!-- Login Card -->
+            <div class="bg-white rounded-3xl shadow-xl
+                        border border-slate-200 overflow-hidden">
+
+                <!-- Card Header -->
+                <div class="bg-gradient-to-r
+                            from-blue-700 to-sky-500
+                            px-6 py-6 text-white">
+
+                    <div class="flex items-center gap-4">
+
+                        <div class="w-12 h-12 rounded-xl
+                                    bg-white/15
+                                    flex items-center justify-center">
+
+                            <i data-lucide="shield-check"
+                               class="w-6 h-6"></i>
+
+                        </div>
+
+                        <div>
+
+                            <h2 class="text-xl font-bold">
+                                Welcome Back
+                            </h2>
+
+                            <p class="text-xs text-blue-100 mt-1">
+                                Login to your account
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Form -->
+                <div class="p-6 sm:p-7">
+
+                    @if (TempData["LoginSuccess"] != null)
+                    {
+                        <div class="mb-5 rounded-xl
+                                    border border-green-200
+                                    bg-green-50
+                                    px-4 py-3">
+
+                            <div class="flex items-start gap-3">
+
+                                <i data-lucide="circle-check"
+                                   class="w-5 h-5 text-green-600 mt-0.5"></i>
+
+                                <p class="text-sm text-green-700">
+                                    @TempData["LoginSuccess"]
+                                </p>
+
+                            </div>
+
+                        </div>
+                    }
+
+
+                    @if (TempData["RegistrationSuccess"] != null)
+                    {
+                        <div class="mb-5 rounded-xl
+                                    border border-green-200
+                                    bg-green-50
+                                    px-4 py-3">
+
+                            <div class="flex items-start gap-3">
+
+                                <i data-lucide="circle-check"
+                                   class="w-5 h-5 text-green-600 mt-0.5"></i>
+
+                                <p class="text-sm text-green-700">
+                                    @TempData["RegistrationSuccess"]
+                                </p>
+
+                            </div>
+
+                        </div>
+                    }
+
+
+                    @if (TempData["RegisterSuccess"] != null)
+                    {
+                        <div class="mb-5 rounded-xl
+                                    border border-green-200
+                                    bg-green-50
+                                    px-4 py-3">
+
+                            <div class="flex items-start gap-3">
+
+                                <i data-lucide="circle-check"
+                                   class="w-5 h-5 text-green-600 mt-0.5"></i>
+
+                                <p class="text-sm text-green-700">
+                                    @TempData["RegisterSuccess"]
+                                </p>
+
+                            </div>
+
+                        </div>
+                    }
+
+
+                    @if (TempData["LoginError"] != null)
+                    {
+                        <div class="mb-5 rounded-xl
+                                    border border-red-200
+                                    bg-red-50
+                                    px-4 py-3">
+
+                            <div class="flex items-start gap-3">
+
+                                <i data-lucide="circle-alert"
+                                   class="w-5 h-5 text-red-600 mt-0.5"></i>
+
+                                <p class="text-sm text-red-700">
+                                    @TempData["LoginError"]
+                                </p>
+
+                            </div>
+
+                        </div>
+                    }
+
+
+                    <form asp-controller="Account"
+                          asp-action="Login"
+                          method="post"
+                          autocomplete="off"
+                          class="space-y-5">
+
+                        @Html.AntiForgeryToken()
+
+                        <input type="hidden"
+                               name="returnUrl"
+                               value="@ViewData["ReturnUrl"]" />
+
+                        <input type="hidden"
+                               name="fromHome"
+                               value="false" />
+
+
+                        <!-- Validation Summary -->
+                        <div asp-validation-summary="ModelOnly"
+                             class="text-sm text-red-600">
+                        </div>
+
+
+                        <!-- Email -->
+                        <div>
+
+                            <label asp-for="Email"
+                                   class="block text-sm font-bold
+                                          text-slate-700 mb-2">
+
+                                Email Address
+
+                            </label>
+
+                            <div class="relative">
+
+                                <i data-lucide="mail"
+                                   class="absolute left-3.5 top-1/2
+                                          -translate-y-1/2
+                                          w-4 h-4 text-slate-400">
+                                </i>
+
+                                <input asp-for="Email"
+                                       type="email"
+                                       autocomplete="off"
+                                       placeholder="Enter your email"
+                                       class="w-full pl-10 pr-4 py-3
+                                              rounded-xl
+                                              border border-slate-300
+                                              text-sm
+                                              focus:ring-2
+                                              focus:ring-blue-500
+                                              focus:border-blue-500
+                                              focus:outline-none" />
+
+                            </div>
+
+                            <span asp-validation-for="Email"
+                                  class="text-xs text-red-600">
+                            </span>
+
+                        </div>
+
+
+                        <!-- Password -->
+                        <div>
+
+                            <div class="flex items-center
+                                        justify-between mb-2">
+
+                                <label asp-for="Password"
+                                       class="block text-sm font-bold
+                                              text-slate-700">
+
+                                    Password
+
+                                </label>
+
+                                <a asp-controller="Account"
+                                   asp-action="ForgotPassword"
+                                   class="text-xs font-semibold
+                                          text-blue-600
+                                          hover:text-blue-700">
+
+                                    Forgot Password?
+
+                                </a>
+
+                            </div>
+
+
+                            <div class="relative">
+
+                                <i data-lucide="lock"
+                                   class="absolute left-3.5 top-1/2
+                                          -translate-y-1/2
+                                          w-4 h-4 text-slate-400">
+                                </i>
+
+                                <input asp-for="Password"
+                                       id="loginPassword"
+                                       type="password"
+                                       autocomplete="new-password"
+                                       placeholder="Enter your password"
+                                       class="w-full pl-10 pr-12 py-3
+                                              rounded-xl
+                                              border border-slate-300
+                                              text-sm
+                                              focus:ring-2
+                                              focus:ring-blue-500
+                                              focus:border-blue-500
+                                              focus:outline-none" />
+
+                                <button type="button"
+                                        onclick="togglePassword()"
+                                        class="absolute right-3.5
+                                               top-1/2
+                                               -translate-y-1/2
+                                               text-slate-400
+                                               hover:text-blue-600">
+
+                                    <i id="passwordIcon"
+                                       data-lucide="eye"
+                                       class="w-4 h-4">
+                                    </i>
+
+                                </button>
+
+                            </div>
+
+                            <span asp-validation-for="Password"
+                                  class="text-xs text-red-600">
+                            </span>
+
+                        </div>
+
+
+                        <!-- ROLE -->
+                        <div>
+
+                            <label asp-for="Role"
+                                   class="block text-sm font-bold
+                                          text-slate-700 mb-2">
+
+                                Login As
+
+                            </label>
+
+                            <div class="relative">
+
+                                <i data-lucide="user-round-check"
+                                   class="absolute left-3.5 top-1/2
+                                          -translate-y-1/2
+                                          w-4 h-4 text-slate-400
+                                          pointer-events-none">
+                                </i>
+
+                                <select asp-for="Role"
+                                        class="w-full pl-10 pr-10 py-3
+                                               rounded-xl
+                                               border border-slate-300
+                                               bg-white
+                                               text-sm text-slate-700
+                                               focus:ring-2
+                                               focus:ring-blue-500
+                                               focus:border-blue-500
+                                               focus:outline-none">
+
+                                    <option value="">
+                                        Select your role
+                                    </option>
+
+                                    <option value="Administrator">
+                                        Administrator
+                                    </option>
+
+                                    <option value="Doctor">
+                                        Doctor
+                                    </option>
+
+                                    <option value="Patient">
+                                        Patient
+                                    </option>
+
+                                    <option value="Receptionist">
+                                        Receptionist
+                                    </option>
+
+                                    <option value="Laboratory">
+                                        Laboratory
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+                            <span asp-validation-for="Role"
+                                  class="text-xs text-red-600">
+                            </span>
+
+                        </div>
+
+
+                        <!-- Info -->
+                        <div class="flex gap-3
+                                    bg-blue-50
+                                    border border-blue-100
+                                    rounded-xl
+                                    px-4 py-3">
+
+                            <i data-lucide="info"
+                               class="w-4 h-4
+                                      text-blue-600
+                                      mt-0.5 shrink-0">
+                            </i>
+
+                            <p class="text-xs
+                                      leading-relaxed
+                                      text-blue-700">
+
+                                Select the same role that was assigned
+                                to your account during registration.
+
+                            </p>
+
+                        </div>
+
+
+                        <!-- Login Button -->
+                        <button type="submit"
+                                class="w-full py-3.5
+                                       rounded-xl
+                                       bg-blue-600
+                                       hover:bg-blue-700
+                                       text-white
+                                       font-bold
+                                       text-sm
+                                       shadow-lg
+                                       shadow-blue-500/20
+                                       transition
+                                       flex items-center
+                                       justify-center
+                                       gap-2">
+
+                            <i data-lucide="log-in"
+                               class="w-4 h-4">
+                            </i>
+
+                            Sign In
+
+                        </button>
+
+                    </form>
+
+
+                    <!-- Register Divider -->
+                    <div class="relative my-7">
+
+                        <div class="absolute inset-0
+                                    flex items-center">
+
+                            <div class="w-full
+                                        border-t
+                                        border-slate-200">
+                            </div>
+
+                        </div>
+
+                        <div class="relative
+                                    flex justify-center">
+
+                            <span class="bg-white
+                                         px-3
+                                         text-xs
+                                         text-slate-400">
+
+                                Don't have an account?
+
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- Create Account -->
+                    <a asp-controller="Account"
+                       asp-action="Register"
+                       class="w-full py-3
+                              rounded-xl
+                              border border-slate-300
+                              text-slate-700
+                              hover:border-blue-400
+                              hover:bg-blue-50
+                              hover:text-blue-600
+                              font-semibold
+                              text-sm
+                              transition
+                              flex items-center
+                              justify-center
+                              gap-2">
+
+                        <i data-lucide="user-plus"
+                           class="w-4 h-4">
+                        </i>
+
+                        Create New Account
+
+                    </a>
+
+
+                    <!-- Security -->
+                    <div class="flex items-center
+                                justify-center
+                                gap-2 mt-6">
+
+                        <i data-lucide="shield-check"
+                           class="w-3.5 h-3.5
+                                  text-green-500">
+                        </i>
+
+                        <span class="text-[10px]
+                                     text-slate-400">
+
+                            Secure authentication powered by
+                            ASP.NET Core Identity
+
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Back Home -->
+            <div class="text-center mt-5">
+
+                <a asp-controller="Home"
+                   asp-action="Index"
+                   class="text-sm font-semibold
+                          text-slate-500
+                          hover:text-blue-600">
+
+                    ← Back to Home
+
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <script>
+
+        lucide.createIcons();
+
+
+        function togglePassword() {
+
+            const password =
+                document.getElementById("loginPassword");
+
+            const icon =
+                document.getElementById("passwordIcon");
+
+            if (!password || !icon) {
+                return;
+            }
+
+            if (password.type === "password") {
+
+                password.type = "text";
+
+                icon.setAttribute(
+                    "data-lucide",
+                    "eye-off"
+                );
+
+            }
+            else {
+
+                password.type = "password";
+
+                icon.setAttribute(
+                    "data-lucide",
+                    "eye"
+                );
+            }
+
+            lucide.createIcons();
+        }
+
+    </script>
+
+
+    @section Scripts {
+
+        <partial name="_ValidationScriptsPartial" />
+
+    }
+
+</body>
+</html>
